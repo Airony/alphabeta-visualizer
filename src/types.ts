@@ -21,7 +21,9 @@ export function execute(stack: State[]) {
 
   currentState.node.highlighted = false;
 
-  if (currentState.opType === "bubbleUp") {
+  // If the node has no more children to handle, then the next task is to bubble up its value to the parent
+  if (currentState.node.children.length <= (currentState.child || 0)) {
+    console.log("No more children");
     const parentState = stack.pop();
     if (!parentState) {
       //We have finished our execution at this point.
@@ -49,23 +51,14 @@ export function execute(stack: State[]) {
     return;
   }
 
-  // If the node has no more children to handle, then the next task is to bubble up its value to the parent
-  if (currentState.node.children.length <= (currentState.child || 0)) {
-    console.log("No more children");
-    currentState.node.highlighted = true;
-    stack.push({ node: currentState.node, opType: "bubbleUp" });
-    return;
-  }
-
   // otherwise, push it down
   stack.push(currentState);
-  const childNode = currentState.node.children[currentState.child as number];
   const nextState: State = {
     node: currentState.node.children[currentState.child as number],
     child: 0,
     opType: "explore",
   };
+
   nextState.node.highlighted = true;
-  console.log("adding new state ", nextState);
   stack.push(nextState);
 }
