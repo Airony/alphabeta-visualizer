@@ -1,11 +1,11 @@
-import { useId, useRef, useState, type ReactElement } from "react";
+import { useRef, useState, type ReactElement } from "react";
 import "./App.css";
 import { execute, type MyNode, type State } from "./types";
-import type { UINodeData } from "./NodeComp";
 
 const initTree: MyNode = {
   value: null,
   highlighted: true,
+  visited: true,
   children: [
     {
       value: null,
@@ -15,7 +15,7 @@ const initTree: MyNode = {
           children: [],
         },
         {
-          value: 17,
+          value: 5,
           children: [],
         },
       ],
@@ -24,11 +24,11 @@ const initTree: MyNode = {
       value: null,
       children: [
         {
-          value: 6,
+          value: 2,
           children: [],
         },
         {
-          value: 1,
+          value: 9,
           children: [],
         },
       ],
@@ -52,17 +52,24 @@ export type UINode = {
 
 function duplicateTree(tree: MyNode): MyNode {
   return {
-    value: tree.value,
+    ...tree,
     children: tree.children.map((child) => duplicateTree(child)),
-    highlighted: tree.highlighted,
   };
 }
 function constructTreeUI(tree: MyNode): ReactElement {
   //console.log("Rerendieng tree", tree);
   return (
     <div className="vertical-container">
-      <div className={`node ${tree.highlighted ? "highlighted" : ""}`}>
+      <div
+        className={`node ${tree.highlighted ? "highlighted" : ""} ${tree.prunned ? "prunned" : ""}`}
+      >
         {tree.value}
+        {tree.visited && (
+          <ul className="node-info">
+            <li>alpha: {tree.alpha}</li>
+            <li>beta: {tree.beta}</li>
+          </ul>
+        )}
       </div>
       <div className="horizontal-container">
         {tree.children.map((child) => constructTreeUI(child))}

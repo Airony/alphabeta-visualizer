@@ -21,6 +21,13 @@
   border: 2px solid white;
   width: 50px;
   height: 50px;
+  position: relative;
+}
+
+.node-info {
+  position: absolute;
+  left: 25px;
+  font-size: 0.75rem;
 }
 
 .horizontal-container {
@@ -36,4 +43,8 @@
 
 .highlighted {
   border-color: red;
+}
+
+.prunned {
+  border-color: blue;
 }
