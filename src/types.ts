@@ -1,6 +1,7 @@
 export type MyNode = {
   value: number | null;
   children: MyNode[];
+  highlighted?: boolean;
 };
 
 type OperationType = "bubbleUp" | "explore";
@@ -18,8 +19,8 @@ export function execute(stack: State[]) {
     return;
   }
 
-  // If the current child is not set, then its the first time we are visting this node,
-  // just highlight it and do nothing in this case
+  currentState.node.highlighted = false;
+
   if (currentState.opType === "bubbleUp") {
     const parentState = stack.pop();
     if (!parentState) {
@@ -35,8 +36,11 @@ export function execute(stack: State[]) {
     ) {
       newParentValue = -1 * (currentState.node.value as number);
     }
+    console.log("Bubble up value!");
+    parentState.node.highlighted = true;
     // Update parent value and then move on to the next child
     parentState.node.value = newParentValue;
+    console.log(parentState.node);
     stack.push({
       node: parentState.node,
       child: (parentState.child as number) + 1,
@@ -45,25 +49,23 @@ export function execute(stack: State[]) {
     return;
   }
 
-  if (currentState.child === undefined) {
-    console.log("Setting child to 0 ");
-    stack.push({ ...currentState, child: 0 });
-    return;
-  }
   // If the node has no more children to handle, then the next task is to bubble up its value to the parent
-  if (currentState.node.children.length <= currentState.child) {
+  if (currentState.node.children.length <= (currentState.child || 0)) {
     console.log("No more children");
+    currentState.node.highlighted = true;
     stack.push({ node: currentState.node, opType: "bubbleUp" });
     return;
   }
 
   // otherwise, push it down
   stack.push(currentState);
+  const childNode = currentState.node.children[currentState.child as number];
   const nextState: State = {
-    node: currentState.node.children[currentState.child],
-    child: undefined,
+    node: currentState.node.children[currentState.child as number],
+    child: 0,
     opType: "explore",
   };
+  nextState.node.highlighted = true;
   console.log("adding new state ", nextState);
   stack.push(nextState);
 }

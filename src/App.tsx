@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useId, useRef, useState, type ReactElement } from "react";
 import "./App.css";
 import { execute, type MyNode, type State } from "./types";
+import type { UINodeData } from "./NodeComp";
 
-const tree: MyNode = {
+const initTree: MyNode = {
   value: null,
+  highlighted: true,
   children: [
     {
       value: null,
@@ -37,37 +39,54 @@ const tree: MyNode = {
 const initialStack: State[] = [
   {
     opType: "explore",
-    child: undefined,
-    node: tree,
+    child: 0,
+    node: initTree,
   },
 ];
 
-let cap = 30;
-do {
-  cap--;
-  execute(initialStack);
-  console.log(initialStack);
-} while (initialStack.length > 0 && cap >= 0);
-console.log("Final tree is ");
-console.log(tree);
+export type UINode = {
+  value?: number;
+  highlighted: boolean;
+  children: UINode[];
+};
+
+function duplicateTree(tree: MyNode): MyNode {
+  return {
+    value: tree.value,
+    children: tree.children.map((child) => duplicateTree(child)),
+    highlighted: tree.highlighted,
+  };
+}
+function constructTreeUI(tree: MyNode): ReactElement {
+  //console.log("Rerendieng tree", tree);
+  return (
+    <div className="vertical-container">
+      <div className={`node ${tree.highlighted ? "highlighted" : ""}`}>
+        {tree.value}
+      </div>
+      <div className="horizontal-container">
+        {tree.children.map((child) => constructTreeUI(child))}
+      </div>
+    </div>
+  );
+}
 
 function App() {
-  const [count, setCount] = useState(0);
+  const stack = useRef<State[]>(initialStack);
+  const [tree, setTree] = useState<MyNode>(duplicateTree(initTree));
+
+  function handleNext() {
+    execute(stack.current);
+    setTree(duplicateTree(initTree));
+  }
 
   return (
     <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <div className="tree-container">{constructTreeUI(tree)}</div>
+      <button onClick={handleNext}>Next</button>
     </>
   );
 }
