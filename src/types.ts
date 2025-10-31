@@ -9,6 +9,7 @@ export type MyNode = {
 };
 
 type OperationType = "bubbleUp" | "explore";
+
 export type State = {
   node: MyNode;
   child?: number;
