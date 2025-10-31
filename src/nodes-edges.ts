@@ -1,5 +1,6 @@
 import type { Edge, Node } from "@xyflow/react";
 import NodeComp from "./components/NodeComp/NodeComp";
+import { CustomEdge } from "./components/CustomEdge";
 
 export interface NodeData extends Record<string, unknown> {
   value?: number;
@@ -10,8 +11,16 @@ export interface NodeData extends Record<string, unknown> {
   beta?: number;
 }
 
+export interface EdgeData extends Record<string, unknown> {
+  deleted?: boolean;
+}
+
 export const nodeTypes = { custom: NodeComp };
+
+export const edgeTypes = { custom: CustomEdge };
+
 export type MyNoode = Node<NodeData, keyof typeof nodeTypes>;
+export type MyEdge = Edge<EdgeData, keyof typeof edgeTypes>;
 
 export const initialNodes: MyNoode[] = [
   {
@@ -112,22 +121,22 @@ export const initialNodes: MyNoode[] = [
 ];
 
 export const initialEdges: Edge[] = [
-  { id: "eroot_n1", source: "root", target: "n1" },
-  { id: "eroot_n2", source: "root", target: "n2" },
+  { id: "eroot_n1", source: "root", target: "n1", type: "custom", data: {} },
+  { id: "eroot_n2", source: "root", target: "n2", type: "custom", data: {} },
 
-  { id: "n1_n1a", source: "n1", target: "n1a" },
-  { id: "n1_n1b", source: "n1", target: "n1b" },
+  { id: "n1_n1a", source: "n1", target: "n1a", type: "custom", data: {} },
+  { id: "n1_n1b", source: "n1", target: "n1b", type: "custom", data: {} },
 
-  { id: "n1a_n1a1", source: "n1a", target: "n1a1" },
-  { id: "n1a_n1a2", source: "n1a", target: "n1a2" },
-  { id: "n1b_n1b1", source: "n1b", target: "n1b1" },
-  { id: "n1b_n1b2", source: "n1b", target: "n1b2" },
+  { id: "n1a_n1a1", source: "n1a", target: "n1a1", type: "custom", data: {} },
+  { id: "n1a_n1a2", source: "n1a", target: "n1a2", type: "custom", data: {} },
+  { id: "n1b_n1b1", source: "n1b", target: "n1b1", type: "custom", data: {} },
+  { id: "n1b_n1b2", source: "n1b", target: "n1b2", type: "custom", data: {} },
 
-  { id: "n2_n2a", source: "n2", target: "n2a" },
-  { id: "n2_n2b", source: "n2", target: "n2b" },
+  { id: "n2_n2a", source: "n2", target: "n2a", type: "custom", data: {} },
+  { id: "n2_n2b", source: "n2", target: "n2b", type: "custom", data: {} },
 
-  { id: "n2a_n2a1", source: "n2a", target: "n2a1" },
-  { id: "n2a_n2a2", source: "n2a", target: "n2a2" },
-  { id: "n2b_n2b1", source: "n2b", target: "n2b1" },
-  { id: "n2b_n2b2", source: "n2b", target: "n2b2" },
+  { id: "n2a_n2a1", source: "n2a", target: "n2a1", type: "custom", data: {} },
+  { id: "n2a_n2a2", source: "n2a", target: "n2a2", type: "custom", data: {} },
+  { id: "n2b_n2b1", source: "n2b", target: "n2b1", type: "custom", data: {} },
+  { id: "n2b_n2b2", source: "n2b", target: "n2b2", type: "custom", data: {} },
 ];

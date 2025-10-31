@@ -11,6 +11,7 @@ import {
   type Node,
 } from "@xyflow/react";
 import {
+  edgeTypes,
   initialEdges,
   initialNodes,
   nodeTypes,
@@ -113,6 +114,16 @@ function App() {
     );
   }
 
+  function pruneEdge(source: string, target: string) {
+    setEdges((prev) =>
+      prev.map((edge) =>
+        edge.source === source && edge.target === target
+          ? { ...edge, data: { ...edge.data, deleted: true } }
+          : edge,
+      ),
+    );
+  }
+
   //TODO: Refactor this because its a mess right now
   function execute() {
     const currentState = executionData.current!.stack.pop();
@@ -171,6 +182,7 @@ function App() {
     const nextExploredChild = childIds[currentState.child as number];
     const nextExploredNode = getNodeById(nextExploredChild);
     if (parentAlpha && parentBeta && parentAlpha >= parentBeta) {
+      pruneEdge(currentState.node, nextExploredChild);
       nextExploredNode.data.prunned = true;
       //prune the next child nodes
       //basically lets just skip all nodes
@@ -227,6 +239,7 @@ function App() {
         nodesDraggable={false}
         edgesReconnectable={false}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
       >
         <Panel position="top-left">
           <button onClick={() => execute()}>Next</button>
