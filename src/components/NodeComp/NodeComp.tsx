@@ -1,19 +1,24 @@
 import { Handle, Position } from "@xyflow/react";
 import "./nodecomp.css";
-
-export interface UINodeData {
-  label: string;
-  highlighted?: boolean;
-}
+import type { MyNoode } from "../../nodes-edges";
 
 interface NodeCompProps {
-  data: UINodeData;
+  data: MyNoode["data"];
 }
 
 export default function NodeComp({ data }: NodeCompProps) {
   return (
-    <div className="node-comp">
-      {data.label}
+    <div
+      className="node-comp"
+      style={{
+        borderColor: data.highlighted
+          ? "red"
+          : data.prunned
+            ? "blue"
+            : undefined,
+      }}
+    >
+      {data.value || ""}
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
     </div>
