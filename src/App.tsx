@@ -15,6 +15,8 @@ import {
 } from "@xyflow/react";
 import { initialEdges, initialNodes } from "./nodes-edges";
 import { useCallback, useEffect, useRef } from "react";
+import NodeComp from "./components/NodeComp/NodeComp";
+const nodeTypes = { custom: NodeComp };
 
 const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
@@ -86,6 +88,7 @@ function App() {
         fitView
         nodesDraggable={false}
         edgesReconnectable={false}
+        nodeTypes={nodeTypes}
       ></ReactFlow>
     </div>
   );

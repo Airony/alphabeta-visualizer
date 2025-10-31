@@ -1,0 +1,9 @@
+.node-comp {
+  width: 75px;
+  height: 75px;
+  border-radius: 99vw;
+  border: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
