@@ -1,109 +1,93 @@
-import { useRef, useState, type ReactElement } from "react";
 import "./App.css";
-import { execute, type MyNode, type State } from "./types";
+import "@xyflow/react/dist/style.css";
+import Dagre from "@dagrejs/dagre";
+import {
+  applyEdgeChanges,
+  applyNodeChanges,
+  ReactFlow,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
+  type Edge,
+  type EdgeChange,
+  type Node,
+  type NodeChange,
+} from "@xyflow/react";
+import { initialEdges, initialNodes } from "./nodes-edges";
+import { useCallback, useEffect, useRef } from "react";
 
-const initTree: MyNode = {
-  value: null,
-  highlighted: true,
-  visited: true,
-  children: [
-    {
-      value: null,
-      children: [
-        {
-          value: null,
-          children: [
-            { value: 3, children: [] },
-            { value: 17, children: [] },
-          ],
-        },
-        {
-          value: null,
-          children: [
-            { value: 2, children: [] },
-            { value: 4, children: [] },
-          ],
-        },
-      ],
-    },
-    {
-      value: null,
-      children: [
-        {
-          value: null,
-          children: [
-            { value: 15, children: [] },
-            { value: 24, children: [] },
-          ],
-        },
-        {
-          value: null,
-          children: [
-            { value: 3, children: [] },
-            { value: 8, children: [] },
-          ],
-        },
-      ],
-    },
-  ],
-};
+const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+  const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+  g.setGraph({ rankdir: "TB" });
 
-const initialStack: State[] = [
-  {
-    opType: "explore",
-    child: 0,
-    node: initTree,
-  },
-];
-
-export type UINode = {
-  value?: number;
-  highlighted: boolean;
-  children: UINode[];
-};
-
-function duplicateTree(tree: MyNode): MyNode {
-  return {
-    ...tree,
-    children: tree.children.map((child) => duplicateTree(child)),
-  };
-}
-function constructTreeUI(tree: MyNode): ReactElement {
-  //console.log("Rerendieng tree", tree);
-  return (
-    <div className="vertical-container">
-      <div
-        className={`node ${tree.highlighted ? "highlighted" : ""} ${tree.prunned ? "prunned" : ""}`}
-      >
-        {tree.value}
-        {tree.visited && (
-          <ul className="node-info">
-            <li>alpha: {tree.alpha}</li>
-            <li>beta: {tree.beta}</li>
-          </ul>
-        )}
-      </div>
-      <div className="horizontal-container">
-        {tree.children.map((child) => constructTreeUI(child))}
-      </div>
-    </div>
+  edges.forEach((edge) => g.setEdge(edge.source, edge.target));
+  nodes.forEach((node) =>
+    g.setNode(node.id, {
+      ...node,
+      width: 75,
+      height: 75,
+    }),
   );
-}
+
+  Dagre.layout(g);
+
+  return {
+    nodes: nodes.map((node) => {
+      const position = g.node(node.id);
+      // We are shifting the dagre node position (anchor=center center) to the top left
+      // so it matches the React Flow node anchor point (top left).
+      const x = position.x - (node.measured?.width ?? 0) / 2;
+      const y = position.y - (node.measured?.height ?? 0) / 2;
+
+      return { ...node, position: { x, y } };
+    }),
+    edges,
+  };
+};
 
 function App() {
-  const stack = useRef<State[]>(initialStack);
-  const [tree, setTree] = useState<MyNode>(duplicateTree(initTree));
+  const { fitView } = useReactFlow();
+  const [nodes, setNodes] = useNodesState(initialNodes);
+  const [edges, setEdges] = useEdgesState(initialEdges);
+  const layoutDone = useRef<boolean>(false);
 
-  function handleNext() {
-    execute(stack.current);
-    setTree(duplicateTree(initTree));
-  }
+  const onLayout = useCallback(() => {
+    console.log(nodes);
+    const layouted = getLayoutedElements(nodes, edges);
+
+    setNodes([...layouted.nodes]);
+    setEdges([...layouted.edges]);
+    fitView();
+  }, [nodes, edges, fitView, setEdges, setNodes]);
+
+  useEffect(() => {
+    const allMeasured = nodes.every((n) => n.measured);
+    if (!layoutDone && allMeasured) onLayout();
+  }, [nodes, onLayout]);
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange<Node>[]) =>
+      setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
+    [setNodes],
+  );
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange<Edge>[]) =>
+      setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
+    [setEdges],
+  );
 
   return (
-    <>
-      <div className="tree-container">{constructTreeUI(tree)}</div>
-      <button onClick={handleNext}>Next</button>
-    </>
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        fitView
+        nodesDraggable={false}
+        edgesReconnectable={false}
+      ></ReactFlow>
+    </div>
   );
 }
 
