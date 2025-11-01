@@ -20,7 +20,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { resetEdge, resetNode } from "./utils";
 
-const getLayoutedElements = (nodes: MyNoode[], edges: Edge[]) => {
+const getLayoutedElements = (nodes: MyNoode[], edges: MyEdge[]) => {
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   g.setGraph({ rankdir: "TB", marginx: 100, marginy: 100 });
 
