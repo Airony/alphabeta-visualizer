@@ -78,7 +78,6 @@ function App() {
   const { fitView } = useReactFlow();
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initialEdges);
-  const layoutDone = useRef<boolean>(false);
   const [isEditMode] = useState<boolean>(false);
   const executionData = useRef<ExecutionData>({
     map: new Map(),
@@ -116,6 +115,7 @@ function App() {
   }
 
   useEffect(() => {
+    // When leaving edit mode, Setup the needed data for the execution
     if (isEditMode) {
       return;
     }
@@ -168,7 +168,7 @@ function App() {
     const currentNode = getNodeById(currentState.node)!;
     const childIds = executionData.current.map.get(currentState.node) ?? [];
 
-    currentNode.data!.highlighted = false;
+    currentNode.data.highlighted = false;
 
     // If the node has no more children to handle, then the next task is to bubble up its value to the parent
     if (childIds.length <= (currentState.child || 0)) {
@@ -209,10 +209,10 @@ function App() {
     // otherwise, push it down
     executionData.current.stack.push(currentState);
 
-    const parentAlpha = currentNode.data.alpha;
-    const parentBeta = currentNode.data.beta;
+    const currentAlpha = currentNode.data.alpha;
+    const currentBeta = currentNode.data.beta;
     const nextExploredChild = childIds[currentState.child as number];
-    if (parentAlpha && parentBeta && parentAlpha >= parentBeta) {
+    if (currentAlpha && currentBeta && currentAlpha >= currentBeta) {
       pruneEdge(currentState.node, nextExploredChild);
       //prune the next child nodes
       //basically lets just skip all nodes
@@ -225,9 +225,9 @@ function App() {
     const nextExploredNode = getNodeById(nextExploredChild);
 
     nextExploredNode.data.alpha =
-      parentBeta !== undefined ? -1 * parentBeta : undefined;
+      currentBeta !== undefined ? -1 * currentBeta : undefined;
     nextExploredNode.data.beta =
-      parentAlpha !== undefined ? -1 * parentAlpha : undefined;
+      currentAlpha !== undefined ? -1 * currentAlpha : undefined;
 
     const nextState: State = {
       node: childIds[currentState.child as number],
@@ -256,14 +256,6 @@ function App() {
     return () => window.removeEventListener("resize", handleResize);
     //  eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    const allMeasured = nodes.every((n) => n.measured);
-    if (!layoutDone.current && allMeasured) {
-      layoutDone.current = true;
-      onLayout();
-    }
-  }, [nodes, onLayout]);
 
   return (
     <div className="app-container">
