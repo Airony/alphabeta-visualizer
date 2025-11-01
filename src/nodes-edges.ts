@@ -119,7 +119,7 @@ export const initialNodes: MyNoode[] = [
   },
 ];
 
-export const initialEdges: Edge[] = [
+export const initialEdges: MyEdge[] = [
   { id: "eroot_n1", source: "root", target: "n1", type: "custom", data: {} },
   { id: "eroot_n2", source: "root", target: "n2", type: "custom", data: {} },
 

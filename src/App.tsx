@@ -14,9 +14,11 @@ import {
   initialEdges,
   initialNodes,
   nodeTypes,
+  type MyEdge,
   type MyNoode,
 } from "./nodes-edges";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { resetEdge, resetNode } from "./utils";
 
 const getLayoutedElements = (nodes: MyNoode[], edges: Edge[]) => {
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
@@ -86,6 +88,30 @@ function App() {
   const layoutDone = useRef<boolean>(false);
   const [isEditMode] = useState<boolean>(false);
   const executionData = useRef<ExecutionData | null>(null);
+
+  function reset() {
+    const nonLeaves = new Set<string>();
+    edges.forEach((edge) => nonLeaves.add(edge.source));
+    const { rootId } = executionData.current!.map;
+
+    executionData.current = {
+      ...executionData.current!,
+      stack: [
+        {
+          node: rootId,
+          child: 0,
+        },
+      ],
+    };
+
+    setNodes((prev) =>
+      prev.map((node) =>
+        resetNode(node, node.id === rootId, !nonLeaves.has(node.id)),
+      ),
+    );
+
+    setEdges((prev) => prev.map((e) => resetEdge(e)));
+  }
 
   useEffect(() => {
     if (isEditMode) {
@@ -237,6 +263,7 @@ function App() {
     <div className="app-container">
       <div className="control-panel">
         <button onClick={() => execute()}>Next</button>
+        <button onClick={() => reset()}>Reset</button>
       </div>
       <div className="tree-container">
         <ReactFlow
