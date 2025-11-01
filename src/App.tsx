@@ -7,7 +7,6 @@ import {
   useNodesState,
   useReactFlow,
   type Edge,
-  type Node,
 } from "@xyflow/react";
 import {
   edgeTypes,
@@ -50,9 +49,9 @@ const getLayoutedElements = (nodes: MyNoode[], edges: MyEdge[]) => {
   };
 };
 
-type AdjacencyMap = { map: Map<string, string[]>; rootId: string };
+type AdjacencyMap = Map<string, string[]>;
 
-function buildAdjacencyMaps(nodes: Node[], edges: Edge[]): AdjacencyMap {
+function buildAdjacencyMap(edges: Edge[]): AdjacencyMap {
   const map = new Map<string, string[]>();
   edges.forEach((edge) => {
     if (map.has(edge.source)) {
@@ -61,14 +60,7 @@ function buildAdjacencyMaps(nodes: Node[], edges: Edge[]): AdjacencyMap {
       map.set(edge.source, [edge.target]);
     }
   });
-  const rootId = nodes
-    .map((node) => node.id)
-    .find((nodeId) => edges.every((edge) => edge.target !== nodeId))!;
-
-  return {
-    map,
-    rootId,
-  };
+  return map;
 }
 
 type State = {
@@ -78,6 +70,7 @@ type State = {
 
 type ExecutionData = {
   map: AdjacencyMap;
+  rootId: string;
   stack: State[];
 };
 
@@ -88,12 +81,13 @@ function App() {
   const layoutDone = useRef<boolean>(false);
   const [isEditMode] = useState<boolean>(false);
   const executionData = useRef<ExecutionData>({
-    map: { map: new Map(), rootId: "" },
+    map: new Map(),
     stack: [],
+    rootId: "",
   });
 
   function resetExecution() {
-    const { rootId } = executionData.current.map;
+    const { rootId } = executionData.current;
     clearNodeAndEdgeValues();
     const rootNodeDupe = getNodeById(rootId);
     rootNodeDupe.data.highlighted = true;
@@ -125,13 +119,18 @@ function App() {
     if (isEditMode) {
       return;
     }
-    const adjacencyMap = buildAdjacencyMaps(nodes, edges);
+    const adjacencyMap = buildAdjacencyMap(edges);
+    const rootId = nodes
+      .map((node) => node.id)
+      .find((nodeId) => edges.every((edge) => edge.target !== nodeId))!;
+
     executionData.current = {
       map: adjacencyMap,
+      rootId,
       stack: [
         {
           child: 0,
-          node: adjacencyMap.rootId,
+          node: rootId,
         },
       ],
     };
@@ -167,7 +166,7 @@ function App() {
     }
 
     const currentNode = getNodeById(currentState.node)!;
-    const childIds = executionData.current.map.map.get(currentState.node) ?? [];
+    const childIds = executionData.current.map.get(currentState.node) ?? [];
 
     currentNode.data!.highlighted = false;
 
