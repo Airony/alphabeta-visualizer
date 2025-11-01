@@ -1,18 +1,14 @@
 import type { MyEdge, MyNoode } from "./nodes-edges";
 
-export function resetNode(
-  node: MyNoode,
-  isRoot: boolean,
-  isLeaf: boolean,
-): MyNoode {
+export function resetNode(node: MyNoode, isLeaf: boolean): MyNoode {
   return {
     ...node,
     data: {
       alpha: undefined,
       beta: undefined,
-      highlighted: isRoot,
+      highlighted: false,
       value: isLeaf ? node.data.value : undefined,
-      visited: isRoot,
+      visited: false,
     },
   };
 }

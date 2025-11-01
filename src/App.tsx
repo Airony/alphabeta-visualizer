@@ -92,10 +92,13 @@ function App() {
     stack: [],
   });
 
-  function reset() {
-    const nonLeaves = new Set<string>();
-    edges.forEach((edge) => nonLeaves.add(edge.source));
+  function resetExecution() {
     const { rootId } = executionData.current.map;
+    clearNodeAndEdgeValues();
+    const rootNodeDupe = getNodeById(rootId);
+    rootNodeDupe.data.highlighted = true;
+    rootNodeDupe.data.visited = true;
+    updateNode(rootNodeDupe);
 
     executionData.current = {
       ...executionData.current,
@@ -106,11 +109,13 @@ function App() {
         },
       ],
     };
+  }
 
+  function clearNodeAndEdgeValues() {
+    const nonLeaves = new Set<string>();
+    edges.forEach((edge) => nonLeaves.add(edge.source));
     setNodes((prev) =>
-      prev.map((node) =>
-        resetNode(node, node.id === rootId, !nonLeaves.has(node.id)),
-      ),
+      prev.map((node) => resetNode(node, !nonLeaves.has(node.id))),
     );
 
     setEdges((prev) => prev.map((e) => resetEdge(e)));
@@ -265,7 +270,7 @@ function App() {
     <div className="app-container">
       <div className="control-panel">
         <button onClick={() => execute()}>Next</button>
-        <button onClick={() => reset()}>Reset</button>
+        <button onClick={() => resetExecution()}>Reset</button>
       </div>
       <div className="tree-container">
         <ReactFlow
