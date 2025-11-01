@@ -87,15 +87,18 @@ function App() {
   const [edges, setEdges] = useEdgesState(initialEdges);
   const layoutDone = useRef<boolean>(false);
   const [isEditMode] = useState<boolean>(false);
-  const executionData = useRef<ExecutionData | null>(null);
+  const executionData = useRef<ExecutionData>({
+    map: { map: new Map(), rootId: "" },
+    stack: [],
+  });
 
   function reset() {
     const nonLeaves = new Set<string>();
     edges.forEach((edge) => nonLeaves.add(edge.source));
-    const { rootId } = executionData.current!.map;
+    const { rootId } = executionData.current.map;
 
     executionData.current = {
-      ...executionData.current!,
+      ...executionData.current,
       stack: [
         {
           node: rootId,
@@ -152,21 +155,20 @@ function App() {
 
   //TODO: Refactor this because its a mess right now
   function execute() {
-    const currentState = executionData.current!.stack.pop();
+    const currentState = executionData.current.stack.pop();
     if (!currentState) {
       console.log("Operation Finished!");
       return;
     }
 
     const currentNode = getNodeById(currentState.node)!;
-    const childIds =
-      executionData.current!.map.map.get(currentState.node) ?? [];
+    const childIds = executionData.current.map.map.get(currentState.node) ?? [];
 
     currentNode.data!.highlighted = false;
 
     // If the node has no more children to handle, then the next task is to bubble up its value to the parent
     if (childIds.length <= (currentState.child || 0)) {
-      const parentState = executionData.current!.stack.pop();
+      const parentState = executionData.current.stack.pop();
       if (!parentState) {
         //We have finished our execution at this point.
         return;
@@ -193,7 +195,7 @@ function App() {
       updateNode(parentNode);
       updateNode(currentNode);
 
-      executionData.current!.stack.push({
+      executionData.current.stack.push({
         node: parentState.node,
         child: (parentState.child as number) + 1,
       });
@@ -201,7 +203,7 @@ function App() {
     }
 
     // otherwise, push it down
-    executionData.current!.stack.push(currentState);
+    executionData.current.stack.push(currentState);
 
     const parentAlpha = currentNode.data.alpha;
     const parentBeta = currentNode.data.beta;
@@ -232,7 +234,7 @@ function App() {
     nextExploredNode.data.visited = true;
     updateNode(nextExploredNode);
     updateNode(currentNode);
-    executionData.current!.stack.push(nextState);
+    executionData.current.stack.push(nextState);
   }
 
   const onLayout = useCallback(() => {
