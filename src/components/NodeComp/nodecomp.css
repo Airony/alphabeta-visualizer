@@ -6,4 +6,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.node-data {
+  position: absolute;
+  left: 50px;
+  font-size: 0.65rem;
+  width: 100px;
 }

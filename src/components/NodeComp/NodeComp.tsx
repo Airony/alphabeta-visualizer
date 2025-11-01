@@ -14,6 +14,12 @@ export default function NodeComp({ data }: NodeCompProps) {
         borderColor: data.highlighted ? "blue" : undefined,
       }}
     >
+      {data.visited && (
+        <div className="node-data">
+          <p>α: {data.alpha || "-inf"}</p>
+          <p>β: {data.beta || "+inf"}</p>
+        </div>
+      )}
       {data.value || ""}
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
