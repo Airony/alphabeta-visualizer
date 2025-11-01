@@ -88,10 +88,16 @@ function App() {
   function resetExecution() {
     const { rootId } = executionData.current;
     clearNodeAndEdgeValues();
-    const rootNodeDupe = getNodeById(rootId);
-    rootNodeDupe.data.highlighted = true;
-    rootNodeDupe.data.visited = true;
-    updateNode(rootNodeDupe);
+    setNodes((prev) =>
+      prev.map((node) =>
+        node.id !== rootId
+          ? node
+          : {
+              ...node,
+              data: { ...node.data, visited: true, highlighted: true },
+            },
+      ),
+    );
 
     executionData.current = {
       ...executionData.current,
