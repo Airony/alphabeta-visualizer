@@ -11,7 +11,7 @@ export default function NodeComp({ data }: NodeCompProps) {
     <div
       className="node-comp"
       style={{
-        borderColor: data.highlighted ? "red" : undefined,
+        borderColor: data.highlighted ? "blue" : undefined,
       }}
     >
       {data.value || ""}

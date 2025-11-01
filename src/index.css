@@ -3,3 +3,18 @@
   line-height: 1.5;
   font-weight: 400;
 }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}

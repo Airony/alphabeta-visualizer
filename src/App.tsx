@@ -2,7 +2,6 @@ import "./App.css";
 import "@xyflow/react/dist/style.css";
 import Dagre from "@dagrejs/dagre";
 import {
-  Panel,
   ReactFlow,
   useEdgesState,
   useNodesState,
@@ -21,14 +20,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const getLayoutedElements = (nodes: MyNoode[], edges: Edge[]) => {
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: "TB" });
+  g.setGraph({ rankdir: "TB", marginx: 100, marginy: 100 });
 
   edges.forEach((edge) => g.setEdge(edge.source, edge.target));
+  console.log("measured width ", nodes[0].measured?.width);
   nodes.forEach((node) =>
     g.setNode(node.id, {
       ...node,
-      width: 75,
-      height: 75,
+      width: node.measured?.width || 50,
+      height: node.measured?.height || 50,
     }),
   );
 
@@ -214,12 +214,15 @@ function App() {
 
     setNodes([...layouted.nodes]);
     setEdges([...layouted.edges]);
-    fitView();
+    fitView({ padding: 0.2 });
   }, [nodes, edges, fitView, setEdges, setNodes]);
 
   useEffect(() => {
+    const handleResize = () => onLayout();
+    window.addEventListener("resize", handleResize);
     onLayout();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => window.removeEventListener("resize", handleResize);
+    //  eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -231,20 +234,26 @@ function App() {
   }, [nodes, onLayout]);
 
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        fitView
-        nodesDraggable={false}
-        edgesReconnectable={false}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-      >
-        <Panel position="top-left">
-          <button onClick={() => execute()}>Next</button>
-        </Panel>
-      </ReactFlow>
+    <div className="app-container">
+      <div className="control-panel">
+        <button onClick={() => execute()}>Next</button>
+      </div>
+      <div className="tree-container">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          fitView
+          nodesDraggable={false}
+          edgesReconnectable={false}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          minZoom={1}
+          translateExtent={[
+            [-750, -750],
+            [1250, 750],
+          ]}
+        ></ReactFlow>
+      </div>
     </div>
   );
 }
