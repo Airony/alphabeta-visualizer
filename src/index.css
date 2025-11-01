@@ -18,3 +18,36 @@ body {
   height: 100%;
   width: 100%;
 }
+
+.control-panel {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+button:hover {
+  background-color: #43a047;
+}
+
+button:active {
+  transform: scale(0.97);
+  background-color: #388e3c;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
