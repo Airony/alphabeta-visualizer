@@ -180,18 +180,17 @@ function App() {
     const parentAlpha = currentNode.data.alpha;
     const parentBeta = currentNode.data.beta;
     const nextExploredChild = childIds[currentState.child as number];
-    const nextExploredNode = getNodeById(nextExploredChild);
     if (parentAlpha && parentBeta && parentAlpha >= parentBeta) {
       pruneEdge(currentState.node, nextExploredChild);
-      nextExploredNode.data.prunned = true;
       //prune the next child nodes
       //basically lets just skip all nodes
       currentState.child = childIds.length;
       currentNode.data.highlighted = true;
       updateNode(currentNode);
-      updateNode(nextExploredNode);
       return;
     }
+
+    const nextExploredNode = getNodeById(nextExploredChild);
 
     nextExploredNode.data.alpha =
       parentBeta !== undefined ? -1 * parentBeta : undefined;
@@ -220,6 +219,7 @@ function App() {
 
   useEffect(() => {
     onLayout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

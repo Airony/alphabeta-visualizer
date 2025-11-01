@@ -6,7 +6,6 @@ export interface NodeData extends Record<string, unknown> {
   value?: number;
   visited?: boolean;
   highlighted?: boolean;
-  prunned?: boolean;
   alpha?: number;
   beta?: number;
 }
