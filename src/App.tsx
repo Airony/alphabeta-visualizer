@@ -8,16 +8,10 @@ import {
   useReactFlow,
   type Edge,
 } from "@xyflow/react";
-import {
-  edgeTypes,
-  initialEdges,
-  initialNodes,
-  nodeTypes,
-  type MyEdge,
-  type MyNoode,
-} from "./nodes-edges";
+import { edgeTypes, nodeTypes, type MyEdge, type MyNoode } from "./nodes-edges";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { resetEdge, resetNode } from "./utils";
+import { constructNodesAndEdges } from "./constructor";
 
 const getLayoutedElements = (nodes: MyNoode[], edges: MyEdge[]) => {
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
@@ -73,6 +67,12 @@ type ExecutionData = {
   rootId: string;
   stack: State[];
 };
+
+const { nodes: initialNodes, edges: initialEdges } = constructNodesAndEdges(
+  4,
+  2,
+  [3, 17, 2, 4, 15, 24, 3, 8],
+);
 
 function App() {
   const { fitView } = useReactFlow();
@@ -185,13 +185,11 @@ function App() {
       }
       const parentNode = getNodeById(parentState.node);
       const parentValue = parentNode.data.value;
+      const currentValue = currentNode.data.alpha || currentNode.data.value;
       let newParentValue = parentValue;
 
-      if (
-        !parentValue ||
-        parentValue <= -1 * (currentNode.data.value as number)
-      ) {
-        newParentValue = -1 * (currentNode.data.value as number);
+      if (!parentValue || parentValue <= -1 * (currentValue as number)) {
+        newParentValue = -1 * (currentValue as number);
       }
 
       parentNode.data.alpha =
@@ -278,11 +276,6 @@ function App() {
           edgesReconnectable={false}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          minZoom={1}
-          translateExtent={[
-            [-750, -750],
-            [1250, 750],
-          ]}
         ></ReactFlow>
       </div>
     </div>
