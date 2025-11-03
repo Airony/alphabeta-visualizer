@@ -201,13 +201,11 @@ function App() {
 
   function createTree() {
     // In edit mode, generate a fresh tree with empty leaf values
-    console.log("Creating with stuff", depth);
     const { nodes: newNodes, edges: newEdges } = constructNodesAndEdges(
       depth,
       childrenCount,
       [],
     );
-    console.log("nodes are ", newNodes);
 
     const layouted = getLayoutedElements(newNodes, newEdges);
     setNodes([...layouted.nodes]);
@@ -264,7 +262,15 @@ function App() {
         newParentValue = -1 * (currentValue as number);
       }
 
-      if (parentAlpha && parentAlpha > newParentValue!) {
+      // Case of alpha prunning
+      const parentChildIds =
+        executionData.current.map.get(parentState.node) ?? [];
+
+      if (
+        parentChildIds.length - 1 === parentState.child &&
+        parentAlpha &&
+        parentAlpha > newParentValue!
+      ) {
         const grandParentState = stack.pop();
 
         if (!grandParentState) {
@@ -315,6 +321,7 @@ function App() {
     // otherwise, push it down
     stack.push(currentState);
 
+    // Verify beta prunning
     const currentBeta = currentNode.data.beta;
     const currentValue = currentNode.data.value;
     const nextExploredChild = childIds[currentState.child as number];
