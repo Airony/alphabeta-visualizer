@@ -319,7 +319,10 @@ function App() {
     const currentValue = currentNode.data.value;
     const nextExploredChild = childIds[currentState.child as number];
     if (currentValue && currentBeta && currentValue >= currentBeta) {
-      pruneEdge(currentState.node, nextExploredChild);
+      for (let i = currentState.child; i < childIds.length; i++) {
+        pruneEdge(currentState.node, childIds[i]);
+      }
+      //pruneEdge(currentState.node, nextExploredChild);
       //prune the next child nodes
       //basically lets just skip all nodes
       currentState.child = childIds.length;
