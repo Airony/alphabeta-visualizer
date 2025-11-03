@@ -249,6 +249,7 @@ function App() {
     // If the node has no more children to handle, then the next task is to bubble up its value to the parent
     if (childIds.length <= (currentState.child || 0)) {
       const parentState = stack.pop();
+      console.log("Last child treated");
       if (!parentState) {
         //We have finished our execution at this point.
         return;
@@ -266,6 +267,7 @@ function App() {
       const parentChildIds =
         executionData.current.map.get(parentState.node) ?? [];
 
+      console.log("Parent is at child", parentState.child);
       if (
         parentChildIds.length - 1 === parentState.child &&
         parentAlpha &&
@@ -279,29 +281,26 @@ function App() {
         const grandParentChildIds =
           executionData.current.map.get(grandParentState.node) ?? [];
 
-        if (grandParentState.child === grandParentChildIds.length - 1) {
-          const grandParentNode = getNodeById(grandParentState.node);
-          grandParentNode.data.highlighted = true;
+        const grandParentNode = getNodeById(grandParentState.node);
+        grandParentNode.data.highlighted = true;
 
-          for (
-            let i = grandParentState.child + 1;
-            i < grandParentChildIds.length;
-            i++
-          ) {
-            pruneEdge(grandParentState.node, grandParentChildIds[i]);
-          }
-
-          grandParentState.child = grandParentChildIds.length;
-          grandParentNode.data.highlighted = true;
-          updateNode(currentNode);
-          updateNode(grandParentNode);
-          stack.push({
-            node: grandParentNode.id,
-            child: grandParentChildIds.length,
-          });
-          return;
+        for (
+          let i = grandParentState.child + 1;
+          i < grandParentChildIds.length;
+          i++
+        ) {
+          pruneEdge(grandParentState.node, grandParentChildIds[i]);
         }
-        stack.push(grandParentState);
+
+        grandParentState.child = grandParentChildIds.length;
+        grandParentNode.data.highlighted = true;
+        updateNode(currentNode);
+        updateNode(grandParentNode);
+        stack.push({
+          node: grandParentNode.id,
+          child: grandParentChildIds.length,
+        });
+        return;
       }
 
       parentNode.data.highlighted = true;
