@@ -259,7 +259,10 @@ function App() {
       const currentValue = currentNode.data.value;
       let newParentValue = parentValue;
 
-      if (!parentValue || parentValue <= -1 * (currentValue as number)) {
+      if (
+        parentValue === undefined ||
+        parentValue <= -1 * (currentValue as number)
+      ) {
         newParentValue = -1 * (currentValue as number);
       }
 
@@ -270,7 +273,7 @@ function App() {
       console.log("Parent is at child", parentState.child);
       if (
         parentChildIds.length - 1 === parentState.child &&
-        parentAlpha &&
+        parentAlpha !== undefined &&
         parentAlpha > newParentValue!
       ) {
         const grandParentState = stack.pop();
@@ -324,7 +327,7 @@ function App() {
     const currentBeta = currentNode.data.beta;
     const currentValue = currentNode.data.value;
     const nextExploredChild = childIds[currentState.child as number];
-    if (currentValue && currentBeta && currentValue >= currentBeta) {
+    if (currentValue !== undefined && currentBeta !== undefined && currentValue >= currentBeta) {
       for (let i = currentState.child; i < childIds.length; i++) {
         pruneEdge(currentState.node, childIds[i]);
       }

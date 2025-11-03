@@ -16,8 +16,8 @@ export default function NodeComp({ data }: NodeCompProps) {
     >
       {data.visited && (
         <div className="node-data">
-          <p>α: {data.alpha || "-inf"}</p>
-          <p>β: {data.beta || "+inf"}</p>
+          <p>α: {data.alpha !== undefined ? data.alpha : "-inf"}</p>
+          <p>β: {data.beta !== undefined ? data.beta : "+inf"}</p>
         </div>
       )}
       {data.editMode && data.isLeaf ? (
