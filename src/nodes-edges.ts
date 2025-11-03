@@ -8,6 +8,11 @@ export interface NodeData extends Record<string, unknown> {
   highlighted?: boolean;
   alpha?: number;
   beta?: number;
+  // edit mode support
+  editMode?: boolean;
+  isLeaf?: boolean;
+  nodeId?: string;
+  onLeafValueChange?: (nodeId: string, value?: number) => void;
 }
 
 export interface EdgeData extends Record<string, unknown> {

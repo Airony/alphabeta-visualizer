@@ -77,7 +77,9 @@ function App() {
   const { fitView } = useReactFlow();
   const [nodes, setNodes] = useNodesState(initialNodes);
   const [edges, setEdges] = useEdgesState(initialEdges);
-  const [isEditMode] = useState<boolean>(false);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [depth, setDepth] = useState<number>(5);
+  const [childrenCount, setChildrenCount] = useState<number>(2);
   const executionData = useRef<ExecutionData>({
     map: new Map(),
     stack: [],
@@ -141,6 +143,77 @@ function App() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode]);
+
+  // helper to detect leaf ids
+  const getLeafIds = useCallback(() => {
+    const nonLeaves = new Set<string>();
+    edges.forEach((edge) => nonLeaves.add(edge.source));
+    const leafIds = nodes.map((n) => n.id).filter((id) => !nonLeaves.has(id));
+    return new Set(leafIds);
+  }, [edges, nodes]);
+
+  // propagate edit flags and callbacks into node data whenever edges or edit mode changes
+  useEffect(() => {
+    const leafIds = getLeafIds();
+    setNodes((prev) =>
+      prev.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          editMode: isEditMode,
+          isLeaf: leafIds.has(node.id),
+          nodeId: node.id,
+          onLeafValueChange: (id: string, value?: number) => {
+            setNodes((p) =>
+              p.map((n) =>
+                n.id === id ? { ...n, data: { ...n.data, value } } : n,
+              ),
+            );
+          },
+        },
+      })),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditMode, edges]);
+
+  function tryToggleEditMode(next: boolean) {
+    if (!next) {
+      // validate all leaves have values
+      const leafIds = getLeafIds();
+      const invalid = nodes.some(
+        (n) =>
+          leafIds.has(n.id) &&
+          (typeof n.data.value !== "number" ||
+            Number.isNaN(n.data.value as number)),
+      );
+      if (invalid) {
+        // block leaving edit mode
+        alert("Please fill all leaf node values before leaving edit mode.");
+        return;
+      }
+      resetExecution();
+      setIsEditMode(next);
+    } else {
+      clearNodeAndEdgeValues();
+      setIsEditMode(next);
+    }
+  }
+
+  function createTree() {
+    // In edit mode, generate a fresh tree with empty leaf values
+    console.log("Creating with stuff", depth);
+    const { nodes: newNodes, edges: newEdges } = constructNodesAndEdges(
+      depth,
+      childrenCount,
+      [],
+    );
+    console.log("nodes are ", newNodes);
+
+    const layouted = getLayoutedElements(newNodes, newEdges);
+    setNodes([...layouted.nodes]);
+    setEdges([...layouted.edges]);
+    fitView({ padding: 0.2 });
+  }
 
   function getNodeById(id: string): MyNoode {
     return { ...nodes.find((node) => node.id === id)! };
@@ -293,8 +366,46 @@ function App() {
   return (
     <div className="app-container">
       <div className="control-panel">
-        <button onClick={() => execute()}>Next</button>
-        <button onClick={() => resetExecution()}>Reset</button>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <button onClick={() => execute()} disabled={isEditMode}>
+            Next
+          </button>
+          <button onClick={() => resetExecution()} disabled={isEditMode}>
+            Reset
+          </button>
+          <button onClick={() => tryToggleEditMode(!isEditMode)}>
+            {isEditMode ? "Leave Edit Mode" : "Enter Edit Mode"}
+          </button>
+          {isEditMode && (
+            <>
+              <label>
+                Depth
+                <input
+                  type="number"
+                  min={2}
+                  value={depth}
+                  onChange={(e) =>
+                    setDepth(Math.max(2, Number(e.target.value) || 2))
+                  }
+                  style={{ width: "4rem", marginLeft: "4px" }}
+                />
+              </label>
+              <label>
+                Children
+                <input
+                  type="number"
+                  min={1}
+                  value={childrenCount}
+                  onChange={(e) =>
+                    setChildrenCount(Math.max(1, Number(e.target.value) || 1))
+                  }
+                  style={{ width: "4rem", marginLeft: "4px" }}
+                />
+              </label>
+              <button onClick={createTree}>Create Tree</button>
+            </>
+          )}
+        </div>
       </div>
       <div className="tree-container">
         <ReactFlow
@@ -305,6 +416,7 @@ function App() {
           edgesReconnectable={false}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
+          zoomOnDoubleClick={false}
         ></ReactFlow>
       </div>
     </div>

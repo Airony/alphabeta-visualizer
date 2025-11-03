@@ -20,7 +20,24 @@ export default function NodeComp({ data }: NodeCompProps) {
           <p>β: {data.beta || "+inf"}</p>
         </div>
       )}
-      {data.value || ""}
+      {data.editMode && data.isLeaf ? (
+        <input
+          type="number"
+          value={
+            typeof data.value === "number" && !Number.isNaN(data.value)
+              ? data.value
+              : ""
+          }
+          onChange={(e) => {
+            const raw = e.target.value;
+            const val = raw === "" ? undefined : Number(raw);
+            data.onLeafValueChange?.(data.nodeId as string, val);
+          }}
+          style={{ width: "4rem" }}
+        />
+      ) : (
+        <>{data.value ?? ""}</>
+      )}
       <Handle type="target" position={Position.Top} />
       <Handle type="source" position={Position.Bottom} />
     </div>
