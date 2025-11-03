@@ -18,7 +18,6 @@ const getLayoutedElements = (nodes: MyNoode[], edges: MyEdge[]) => {
   g.setGraph({ rankdir: "TB", marginx: 100, marginy: 100 });
 
   edges.forEach((edge) => g.setEdge(edge.source, edge.target));
-  console.log("measured width ", nodes[0].measured?.width);
   nodes.forEach((node) =>
     g.setNode(node.id, {
       ...node,
@@ -59,7 +58,7 @@ function buildAdjacencyMap(edges: Edge[]): AdjacencyMap {
 
 type State = {
   node: string;
-  child?: number;
+  child: number;
 };
 
 type ExecutionData = {
@@ -69,9 +68,9 @@ type ExecutionData = {
 };
 
 const { nodes: initialNodes, edges: initialEdges } = constructNodesAndEdges(
-  4,
+  5,
   2,
-  [3, 17, 2, 4, 15, 24, 3, 8],
+  [15, 6, 3, 12, 42, 45, 42, 39, -9, 66, 27, 36, 33, 30, 61, 60],
 );
 
 function App() {
@@ -165,9 +164,9 @@ function App() {
 
   //TODO: Refactor this because its a mess right now
   function execute() {
-    const currentState = executionData.current.stack.pop();
+    const stack = executionData.current.stack;
+    const currentState = stack.pop();
     if (!currentState) {
-      console.log("Operation Finished!");
       return;
     }
 
@@ -178,24 +177,54 @@ function App() {
 
     // If the node has no more children to handle, then the next task is to bubble up its value to the parent
     if (childIds.length <= (currentState.child || 0)) {
-      const parentState = executionData.current.stack.pop();
+      const parentState = stack.pop();
       if (!parentState) {
         //We have finished our execution at this point.
         return;
       }
       const parentNode = getNodeById(parentState.node);
-      const parentValue = parentNode.data.value;
-      const currentValue = currentNode.data.alpha || currentNode.data.value;
+      const { value: parentValue, alpha: parentAlpha } = parentNode.data;
+      const currentValue = currentNode.data.value;
       let newParentValue = parentValue;
 
       if (!parentValue || parentValue <= -1 * (currentValue as number)) {
         newParentValue = -1 * (currentValue as number);
       }
 
-      parentNode.data.alpha =
-        parentNode.data.alpha !== undefined
-          ? Math.max(parentNode.data.alpha, newParentValue as number)
-          : (newParentValue as number);
+      if (parentAlpha && parentAlpha > newParentValue!) {
+        const grandParentState = stack.pop();
+
+        if (!grandParentState) {
+          return;
+        }
+        const grandParentChildIds =
+          executionData.current.map.get(grandParentState.node) ?? [];
+
+        if (grandParentState.child === grandParentChildIds.length - 1) {
+          const grandParentNode = getNodeById(grandParentState.node);
+          grandParentNode.data.highlighted = true;
+
+          for (
+            let i = grandParentState.child + 1;
+            i < grandParentChildIds.length;
+            i++
+          ) {
+            pruneEdge(grandParentState.node, grandParentChildIds[i]);
+          }
+
+          grandParentState.child = grandParentChildIds.length;
+          grandParentNode.data.highlighted = true;
+          updateNode(currentNode);
+          updateNode(grandParentNode);
+          stack.push({
+            node: grandParentNode.id,
+            child: grandParentChildIds.length,
+          });
+          return;
+        }
+        stack.push(grandParentState);
+      }
+
       parentNode.data.highlighted = true;
       // Update parent value and then move on to the next child
       parentNode.data.value = newParentValue;
@@ -203,7 +232,7 @@ function App() {
       updateNode(parentNode);
       updateNode(currentNode);
 
-      executionData.current.stack.push({
+      stack.push({
         node: parentState.node,
         child: (parentState.child as number) + 1,
       });
@@ -211,12 +240,12 @@ function App() {
     }
 
     // otherwise, push it down
-    executionData.current.stack.push(currentState);
+    stack.push(currentState);
 
-    const currentAlpha = currentNode.data.alpha;
     const currentBeta = currentNode.data.beta;
+    const currentValue = currentNode.data.value;
     const nextExploredChild = childIds[currentState.child as number];
-    if (currentAlpha && currentBeta && currentAlpha >= currentBeta) {
+    if (currentValue && currentBeta && currentValue >= currentBeta) {
       pruneEdge(currentState.node, nextExploredChild);
       //prune the next child nodes
       //basically lets just skip all nodes
@@ -231,7 +260,7 @@ function App() {
     nextExploredNode.data.alpha =
       currentBeta !== undefined ? -1 * currentBeta : undefined;
     nextExploredNode.data.beta =
-      currentAlpha !== undefined ? -1 * currentAlpha : undefined;
+      currentValue !== undefined ? -1 * currentValue : undefined;
 
     const nextState: State = {
       node: childIds[currentState.child as number],
@@ -242,7 +271,7 @@ function App() {
     nextExploredNode.data.visited = true;
     updateNode(nextExploredNode);
     updateNode(currentNode);
-    executionData.current.stack.push(nextState);
+    stack.push(nextState);
   }
 
   const onLayout = useCallback(() => {
