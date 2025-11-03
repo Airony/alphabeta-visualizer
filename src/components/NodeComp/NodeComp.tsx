@@ -33,6 +33,7 @@ export default function NodeComp({ data }: NodeCompProps) {
             const val = raw === "" ? undefined : Number(raw);
             data.onLeafValueChange?.(data.nodeId as string, val);
           }}
+          onMouseDown={(e) => e.stopPropagation()}
           style={{ width: "4rem" }}
         />
       ) : (
