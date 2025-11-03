@@ -422,6 +422,15 @@ function App() {
           zoomOnDoubleClick={false}
         ></ReactFlow>
       </div>
+      <div className="footer" style={{ padding: "8px", textAlign: "center" }}>
+        <a
+          href="https://github.com/Airony/alphabeta-visualizer"
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Source code on GitHub
+        </a>
+      </div>
     </div>
   );
 }
