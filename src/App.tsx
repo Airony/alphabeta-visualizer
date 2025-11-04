@@ -380,31 +380,44 @@ function App() {
 
   const onLayout = useCallback(() => {
     const layouted = getLayoutedElements(nodes, edges);
-
     setNodes([...layouted.nodes]);
     setEdges([...layouted.edges]);
     fitView({ padding: 0.2 });
   }, [nodes, edges, fitView, setEdges, setNodes]);
 
   useEffect(() => {
+    onLayout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     const handleResize = () => onLayout();
     window.addEventListener("resize", handleResize);
-    onLayout();
     return () => window.removeEventListener("resize", handleResize);
-    //  eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [onLayout]);
 
   return (
     <div className="app-container">
       <div className="control-panel">
         <div className="control-panel-content">
-          <button className={`btn ${isEditMode ? 'btn-primary' : 'btn-edit-toggle'}`} onClick={() => tryToggleEditMode(!isEditMode)}>
+          <button
+            className={`btn ${isEditMode ? "btn-primary" : "btn-edit-toggle"}`}
+            onClick={() => tryToggleEditMode(!isEditMode)}
+          >
             {isEditMode ? "Leave Edit Mode" : "Enter Edit Mode"}
           </button>
-          <button className="btn btn-next" onClick={() => execute()} disabled={isEditMode}>
+          <button
+            className="btn btn-next"
+            onClick={() => execute()}
+            disabled={isEditMode}
+          >
             Next
           </button>
-          <button className="btn btn-reset" onClick={() => resetExecution()} disabled={isEditMode}>
+          <button
+            className="btn btn-reset"
+            onClick={() => resetExecution()}
+            disabled={isEditMode}
+          >
             Reset
           </button>
           {isEditMode && (
@@ -433,8 +446,12 @@ function App() {
                   className="number-input"
                 />
               </label>
-              <button className="btn btn-create" onClick={createTree}>Create Tree</button>
-              <button className="btn btn-randomize" onClick={randomizeValues}>Randomize Values</button>
+              <button className="btn btn-create" onClick={createTree}>
+                Create Tree
+              </button>
+              <button className="btn btn-randomize" onClick={randomizeValues}>
+                Randomize Values
+              </button>
             </>
           )}
         </div>
