@@ -327,7 +327,11 @@ function App() {
     const currentBeta = currentNode.data.beta;
     const currentValue = currentNode.data.value;
     const nextExploredChild = childIds[currentState.child as number];
-    if (currentValue !== undefined && currentBeta !== undefined && currentValue >= currentBeta) {
+    if (
+      currentValue !== undefined &&
+      currentBeta !== undefined &&
+      currentValue >= currentBeta
+    ) {
       for (let i = currentState.child; i < childIds.length; i++) {
         pruneEdge(currentState.node, childIds[i]);
       }
@@ -357,6 +361,21 @@ function App() {
     updateNode(nextExploredNode);
     updateNode(currentNode);
     stack.push(nextState);
+  }
+
+  function randomizeValues() {
+    const leafIds = getLeafIds();
+    setNodes((prev) =>
+      prev.map((node) => {
+        if (!leafIds.has(node.id)) {
+          return node;
+        }
+        return {
+          ...node,
+          data: { ...node.data, value: Math.floor(Math.random() * 50 - 25) },
+        };
+      }),
+    );
   }
 
   const onLayout = useCallback(() => {
@@ -415,6 +434,7 @@ function App() {
                 />
               </label>
               <button onClick={createTree}>Create Tree</button>
+              <button onClick={randomizeValues}>Randomize Values</button>
             </>
           )}
         </div>
