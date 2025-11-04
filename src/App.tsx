@@ -397,19 +397,19 @@ function App() {
   return (
     <div className="app-container">
       <div className="control-panel">
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <button onClick={() => execute()} disabled={isEditMode}>
+        <div className="control-panel-content">
+          <button className={`btn ${isEditMode ? 'btn-primary' : 'btn-edit-toggle'}`} onClick={() => tryToggleEditMode(!isEditMode)}>
+            {isEditMode ? "Leave Edit Mode" : "Enter Edit Mode"}
+          </button>
+          <button className="btn btn-next" onClick={() => execute()} disabled={isEditMode}>
             Next
           </button>
-          <button onClick={() => resetExecution()} disabled={isEditMode}>
+          <button className="btn btn-reset" onClick={() => resetExecution()} disabled={isEditMode}>
             Reset
-          </button>
-          <button onClick={() => tryToggleEditMode(!isEditMode)}>
-            {isEditMode ? "Leave Edit Mode" : "Enter Edit Mode"}
           </button>
           {isEditMode && (
             <>
-              <label>
+              <label className="input-label">
                 Depth
                 <input
                   type="number"
@@ -418,10 +418,10 @@ function App() {
                   onChange={(e) =>
                     setDepth(Math.max(2, Number(e.target.value) || 2))
                   }
-                  style={{ width: "4rem", marginLeft: "4px" }}
+                  className="number-input"
                 />
               </label>
-              <label>
+              <label className="input-label">
                 Children
                 <input
                   type="number"
@@ -430,11 +430,11 @@ function App() {
                   onChange={(e) =>
                     setChildrenCount(Math.max(1, Number(e.target.value) || 1))
                   }
-                  style={{ width: "4rem", marginLeft: "4px" }}
+                  className="number-input"
                 />
               </label>
-              <button onClick={createTree}>Create Tree</button>
-              <button onClick={randomizeValues}>Randomize Values</button>
+              <button className="btn btn-create" onClick={createTree}>Create Tree</button>
+              <button className="btn btn-randomize" onClick={randomizeValues}>Randomize Values</button>
             </>
           )}
         </div>

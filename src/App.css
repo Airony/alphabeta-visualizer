@@ -16,4 +16,125 @@
   width: 100%;
   padding: 16px 32px;
   border: 3px solid black;
+  background-color: #f8f9fa;
+}
+
+.control-panel-content {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Button Styles */
+.btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-family: inherit;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0b5ed7;
+}
+
+.btn-next {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-next:hover:not(:disabled) {
+  background-color: #138496;
+}
+
+.btn-reset {
+  background-color: #ff9800;
+  color: white;
+}
+
+.btn-reset:hover:not(:disabled) {
+  background-color: #f57c00;
+}
+
+.btn-edit-toggle {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-edit-toggle:hover:not(:disabled) {
+  background-color: #5c636a;
+}
+
+.btn-create {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-create:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.btn-randomize {
+  background-color: #9c27b0;
+  color: white;
+}
+
+.btn-randomize:hover:not(:disabled) {
+  background-color: #7b1fa2;
+}
+
+/* Input Styles */
+.input-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.number-input {
+  width: 60px;
+  padding: 8px 10px;
+  border: 2px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.number-input:hover {
+  border-color: #adb5bd;
 }
