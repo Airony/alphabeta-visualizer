@@ -79,6 +79,7 @@ function App() {
   const [edges, setEdges] = useEdgesState(initialEdges);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [depth, setDepth] = useState<number>(5);
+  const [isPruneEnabled, setIsPruneEnabled] = useState<boolean>(true);
   const [childrenCount, setChildrenCount] = useState<number>(2);
   const executionData = useRef<ExecutionData>({
     map: new Map(),
@@ -272,6 +273,7 @@ function App() {
 
       console.log("Parent is at child", parentState.child);
       if (
+        isPruneEnabled &&
         parentChildIds.length - 1 === parentState.child &&
         parentAlpha !== undefined &&
         parentAlpha > newParentValue!
@@ -328,6 +330,7 @@ function App() {
     const currentValue = currentNode.data.value;
     const nextExploredChild = childIds[currentState.child as number];
     if (
+      isPruneEnabled &&
       currentValue !== undefined &&
       currentBeta !== undefined &&
       currentValue >= currentBeta
@@ -420,6 +423,22 @@ function App() {
           >
             Reset
           </button>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "0.5rem",
+              marginLeft: "0.5rem",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={isPruneEnabled}
+              onChange={(e) => setIsPruneEnabled(e.target.checked)}
+              disabled={isEditMode}
+            />
+            <label>Alpha Beta Prunning</label>
+          </div>
           {isEditMode && (
             <>
               <label className="input-label">
