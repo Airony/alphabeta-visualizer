@@ -267,6 +267,7 @@ function App() {
         newParentValue = -1 * (currentValue as number);
       }
 
+      parentNode.data.value = newParentValue;
       // Case of alpha prunning
       const parentChildIds =
         executionData.current.map.get(parentState.node) ?? [];
@@ -300,6 +301,7 @@ function App() {
         grandParentState.child = grandParentChildIds.length;
         grandParentNode.data.highlighted = true;
         updateNode(currentNode);
+        updateNode(parentNode);
         updateNode(grandParentNode);
         stack.push({
           node: grandParentNode.id,
@@ -310,7 +312,6 @@ function App() {
 
       parentNode.data.highlighted = true;
       // Update parent value and then move on to the next child
-      parentNode.data.value = newParentValue;
 
       updateNode(parentNode);
       updateNode(currentNode);
